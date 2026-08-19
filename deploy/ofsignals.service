@@ -1,0 +1,52 @@
+[Unit]
+Description=Orderflow Signals :: Binance USDT-M SMC signal engine
+Documentation=file:/opt/ofsignals/app/README.md
+After=network-online.target chrony.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ofsignals
+Group=ofsignals
+WorkingDirectory=/opt/ofsignals/app
+
+EnvironmentFile=/opt/ofsignals/.env
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONPATH=/opt/ofsignals/app/src
+Environment=TZ=UTC
+
+ExecStart=/opt/ofsignals/.venv/bin/python -m ofsignals.main
+ExecReload=/bin/kill -HUP $MAINPID
+
+Restart=always
+RestartSec=10
+StartLimitIntervalSec=300
+StartLimitBurst=5
+TimeoutStopSec=30
+KillSignal=SIGTERM
+
+# ---- hardening ----------------------------------------------------------
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+ReadWritePaths=/opt/ofsignals/data /opt/ofsignals/logs
+
+# ---- resource ceilings --------------------------------------------------
+MemoryMax=1500M
+CPUQuota=180%
+LimitNOFILE=65535
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ofsignals
+
+[Install]
+WantedBy=multi-user.target

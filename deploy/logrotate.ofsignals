@@ -1,0 +1,11 @@
+/opt/ofsignals/logs/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    su ofsignals ofsignals
+    create 0640 ofsignals ofsignals
+}
